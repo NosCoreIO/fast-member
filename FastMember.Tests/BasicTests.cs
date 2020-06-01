@@ -152,7 +152,7 @@ namespace FastMemberTests
             var access = TypeAccessor.Create(typeof(PropsOnStruct));
 
             access[obj, "A"] = 123;
-            
+
             Assert.Equal(123, ((PropsOnStruct)obj).A);
         }
 
@@ -177,7 +177,7 @@ namespace FastMemberTests
             var now = DateTime.Now;
 
             object obj = new FieldsOnStruct();
-            
+
             var access = TypeAccessor.Create(typeof(FieldsOnStruct));
 
             access[obj, "A"] = 123;
@@ -282,7 +282,7 @@ namespace FastMemberTests
 
         public class HasDefaultCtor { }
         public class HasNoDefaultCtor { public HasNoDefaultCtor(string s) { } }
-        public abstract class IsAbstract { }   
+        public abstract class IsAbstract { }
 
         [Fact]
         public void TestCtor()
@@ -296,10 +296,66 @@ namespace FastMemberTests
             Assert.NotEqual("DynamicAccessor", accessor.GetType().Name);
             Assert.NotEqual("DelegateAccessor", accessor.GetType().Name);
 
-            accessor = TypeAccessor.Create(typeof (HasDefaultCtor));
+            accessor = TypeAccessor.Create(typeof(HasDefaultCtor));
             Assert.True(accessor.CreateNewSupported);
             object obj = accessor.CreateNew();
             Assert.IsType<HasDefaultCtor>(obj);
+        }
+
+
+        [Fact]
+        public void TestHasPrivateField()
+        {
+            var obj = new HasPrivateField(5);
+            var acc = TypeAccessor.Create(typeof(HasPrivateField), true);
+            Assert.Equal(5, acc[obj, "Foo"]);
+        }
+
+        public class HasPrivateField
+        {
+            public HasPrivateField(int foo)
+            {
+                Foo = foo;
+            }
+            private int Foo = 5;
+        }
+
+        public class HasInternalField
+        {
+            internal int Foo;
+        }
+        public class HasInternalGetterSetter
+        {
+            internal int Foo { get; set; }
+        }
+        [Fact]
+        public void TestHasInternalGetterSetter()
+        {
+            var obj = new HasInternalGetterSetter { Foo = 5 };
+            var acc = TypeAccessor.Create(typeof(HasInternalGetterSetter), true);
+            Assert.Equal(5, acc[obj, "Foo"]);
+        }
+        public class HasPrivateGetterSetter
+        {
+            public HasPrivateGetterSetter(int foo)
+            {
+                Foo = foo;
+            }
+            private int Foo { get; set; }
+        }
+        [Fact]
+        public void TestHasPrivateGetterSetter()
+        {
+            var obj = new HasPrivateGetterSetter(5);
+            var acc = TypeAccessor.Create(typeof(HasPrivateGetterSetter), true);
+            Assert.Equal(5, acc[obj, "Foo"]);
+        }
+        [Fact]
+        public void TestHasInternalField()
+        {
+            var obj = new HasInternalField { Foo = 5 };
+            var acc = TypeAccessor.Create(typeof(HasInternalField), true);
+            Assert.Equal(5, acc[obj, "Foo"]);
         }
 
         public class HasGetterNoSetter
@@ -310,7 +366,7 @@ namespace FastMemberTests
         public void TestHasGetterNoSetter()
         {
             var obj = new HasGetterNoSetter();
-            var acc = TypeAccessor.Create(typeof (HasGetterNoSetter));
+            var acc = TypeAccessor.Create(typeof(HasGetterNoSetter));
             Assert.Equal(5, acc[obj, "Foo"]);
         }
         public class HasGetterPrivateSetter
@@ -383,10 +439,11 @@ namespace FastMemberTests
             });
         }
 
-        public class ObjectReaderType {
-            public int A {get;set;}
-            public string B {get;set;}
-            public byte C {get;set;}
+        public class ObjectReaderType
+        {
+            public int A { get; set; }
+            public string B { get; set; }
+            public byte C { get; set; }
             public int? D { get; set; }
         }
 
